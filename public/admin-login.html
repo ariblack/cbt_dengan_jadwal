@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Admin — CBT</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --green-dark:   #0d3d23;
+            --green-mid:    #1a5c3a;
+            --green-light:  #2d8a5e;
+            --green-accent: #3db87a;
+            --card-bg:      #ffffff;
+            --text-main:    #1a1a2e;
+            --text-muted:   #6b7a8d;
+            --border:       #e8edf2;
+            --error:        #e53e3e;
+            --success:      #38a169;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: var(--green-dark);
+            position: relative;
+        }
+
+        /* Animated background */
+        .bg-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 20% 10%, rgba(45,138,94,0.35) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 80% at 80% 90%, rgba(13,61,35,0.8) 0%, transparent 60%),
+                linear-gradient(160deg, #0d3d23 0%, #0a2e1a 40%, #071f12 100%);
+        }
+
+        /* Floating orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.15;
+            animation: floatOrb 12s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .orb-1 { width: 400px; height: 400px; background: var(--green-accent); top: -100px; left: -100px; animation-delay: 0s; }
+        .orb-2 { width: 300px; height: 300px; background: var(--green-light); bottom: -80px; right: -80px; animation-delay: -4s; }
+        .orb-3 { width: 200px; height: 200px; background: #6ee7b7; top: 50%; left: 60%; animation-delay: -8s; }
+
+        @keyframes floatOrb {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -20px) scale(1.05); }
+            66% { transform: translate(-20px, 30px) scale(0.95); }
+        }
+
+        /* Grid texture overlay */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background-image:
+                linear-gradient(rgba(61,184,122,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(61,184,122,0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* Main wrapper */
+        .wrapper {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 440px;
+            padding: 20px;
+            animation: slideUp 0.6s cubic-bezier(0.22,1,0.36,1) both;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Card */
+        .login-card {
+            background: rgba(255,255,255,0.97);
+            border-radius: 24px;
+            padding: 44px 40px 40px;
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.1),
+                0 32px 80px rgba(0,0,0,0.5),
+                0 8px 24px rgba(0,0,0,0.3);
+            backdrop-filter: blur(20px);
+        }
+
+        /* Logo area */
+        .logo-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+
+        .logo-img-wrap {
+            width: 88px;
+            height: 88px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #f0faf5 0%, #e0f5eb 100%);
+            border: 2px solid rgba(45,138,94,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-bottom: 14px;
+            box-shadow: 0 4px 16px rgba(45,138,94,0.12);
+        }
+
+        .logo-img-wrap img {
+            width: 72px;
+            height: 72px;
+            object-fit: contain;
+        }
+
+        .logo-img-wrap .material-icons {
+            font-size: 44px;
+            color: var(--green-mid);
+        }
+
+        .school-name {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-main);
+            text-align: center;
+            letter-spacing: -0.01em;
+            line-height: 1.3;
+        }
+
+        .admin-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 6px;
+            padding: 3px 10px;
+            background: rgba(26,92,58,0.08);
+            border: 1px solid rgba(26,92,58,0.15);
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--green-mid);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .admin-badge .material-icons { font-size: 13px; }
+
+        /* Divider */
+        .card-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 0 -40px 28px;
+        }
+
+        /* First setup banner */
+        .setup-banner {
+            display: none;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px 14px;
+            background: linear-gradient(135deg, #fff8e1, #fffde7);
+            border: 1px solid #ffe082;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 0.82rem;
+            color: #7c5a00;
+            line-height: 1.5;
+        }
+
+        .setup-banner .material-icons { font-size: 18px; color: #f59e0b; flex-shrink: 0; margin-top: 1px; }
+        .setup-banner strong { display: block; font-weight: 700; margin-bottom: 2px; }
+
+        /* Alert */
+        .alert-box {
+            display: none;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 0.83rem;
+            font-weight: 500;
+            margin-bottom: 18px;
+            align-items: center;
+            gap: 8px;
+        }
+        .alert-box .material-icons { font-size: 17px; flex-shrink: 0; }
+        .alert-danger  { background: #fff5f5; border: 1px solid #fed7d7; color: #c53030; }
+        .alert-success { background: #f0fff4; border: 1px solid #c6f6d5; color: #276749; }
+
+        /* Form */
+        .form-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 7px;
+            letter-spacing: 0.01em;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-wrap .material-icons.input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 19px;
+            color: var(--text-muted);
+            pointer-events: none;
+            transition: color 0.2s;
+        }
+
+        .form-control-custom {
+            width: 100%;
+            height: 48px;
+            padding: 0 46px 0 44px;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            font-size: 0.92rem;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 500;
+            color: var(--text-main);
+            background: #f8fafc;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+        }
+
+        .form-control-custom:focus {
+            border-color: var(--green-mid);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(26,92,58,0.1);
+        }
+
+        .form-control-custom:focus + .input-icon,
+        .input-wrap:focus-within .material-icons.input-icon {
+            color: var(--green-mid);
+        }
+
+        .toggle-pw {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            color: var(--text-muted);
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        .toggle-pw:hover { color: var(--text-main); }
+        .toggle-pw .material-icons { font-size: 20px; }
+
+        .hint-text {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .hint-text .material-icons { font-size: 13px; }
+
+        /* Submit button */
+        .btn-submit {
+            width: 100%;
+            height: 50px;
+            margin-top: 24px;
+            background: linear-gradient(135deg, var(--green-mid) 0%, var(--green-dark) 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            letter-spacing: 0.01em;
+            transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+            box-shadow: 0 4px 20px rgba(26,92,58,0.35);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-submit::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .btn-submit:hover:not(:disabled)::after { opacity: 1; }
+        .btn-submit:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(26,92,58,0.4); }
+        .btn-submit:active:not(:disabled) { transform: translateY(0); }
+        .btn-submit:disabled { opacity: 0.65; cursor: not-allowed; }
+        .btn-submit .material-icons { font-size: 19px; }
+
+        /* Spinner */
+        .spinner {
+            width: 18px; height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            display: none;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Footer */
+        .card-footer-text {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.74rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        .card-footer-text .material-icons { font-size: 13px; color: var(--green-light); }
+    </style>
+</head>
+<body>
+    <div class="bg-layer"></div>
+    <div class="bg-grid"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <div class="wrapper">
+        <div class="login-card">
+
+            <!-- Logo & School Name -->
+            <div class="logo-area">
+                <div class="logo-img-wrap">
+                    <img id="logoImg" src="/logo_sekolah.png" alt="Logo Sekolah"
+                         onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='flex';">
+                    <span id="logoFallback" class="material-icons" style="display:none;">school</span>
+                </div>
+                <div class="school-name" id="namaSekolah">CBT Admin</div>
+                <div class="admin-badge">
+                    <span class="material-icons">shield</span>
+                    Panel Administrator
+                </div>
+            </div>
+
+            <div class="card-divider"></div>
+
+            <!-- First Setup Banner -->
+            <div class="setup-banner" id="setupBanner">
+                <span class="material-icons">info</span>
+                <div>
+                    <strong>Setup Pertama</strong>
+                    Buat password admin baru. Gunakan minimal 6 karakter.
+                </div>
+            </div>
+
+            <!-- Alert -->
+            <div class="alert-box" id="alertBox" role="alert">
+                <span class="material-icons" id="alertIcon">error</span>
+                <span id="alertMsg"></span>
+            </div>
+
+            <!-- Form -->
+            <form id="loginForm" autocomplete="off" onsubmit="handleSubmit(event)">
+                <div class="mb-1">
+                    <label class="form-label" for="password">
+                        <span id="labelText">Password Admin</span>
+                    </label>
+                    <div class="input-wrap">
+                        <input type="password" id="password" class="form-control-custom"
+                               placeholder="Masukkan password" required minlength="6" autocomplete="current-password">
+                        <span class="material-icons input-icon">lock</span>
+                        <button type="button" class="toggle-pw" onclick="togglePassword()" title="Tampilkan/Sembunyikan">
+                            <span class="material-icons" id="toggleIcon">visibility</span>
+                        </button>
+                    </div>
+                    <div class="hint-text" id="hintText">
+                        <span class="material-icons">info</span>
+                        <span id="hintMsg">Password minimal 6 karakter</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit" id="btnSubmit">
+                    <div class="spinner" id="spinner"></div>
+                    <span class="material-icons" id="btnIcon">login</span>
+                    <span id="btnText">Masuk</span>
+                </button>
+            </form>
+
+            <div class="card-footer-text">
+                <span class="material-icons">lock</span>
+                Akses terproteksi · Sesi 8 jam
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isFirstSetup = false;
+
+        // Cek status setup & load nama sekolah saat halaman load
+        async function init() {
+            try {
+                const [statusRes, pengaturanRes] = await Promise.all([
+                    fetch('/admin-auth-status'),
+                    fetch('/get-pengaturan')
+                ]);
+
+                const status = await statusRes.json();
+                const pengaturan = await pengaturanRes.json();
+
+                // Update nama sekolah
+                if (pengaturan && pengaturan.namaSekolah) {
+                    document.getElementById('namaSekolah').textContent = pengaturan.namaSekolah;
+                }
+
+                // Cek first setup
+                if (!status.isSet) {
+                    isFirstSetup = true;
+                    document.getElementById('setupBanner').style.display = 'flex';
+                    document.getElementById('labelText').textContent = 'Buat Password Admin Baru';
+                    document.getElementById('btnText').textContent = 'Buat Password';
+                    document.getElementById('btnIcon').textContent = 'key';
+                    document.getElementById('hintMsg').textContent = 'Password baru minimal 6 karakter';
+                    document.getElementById('password').setAttribute('autocomplete', 'new-password');
+                    document.getElementById('password').setAttribute('placeholder', 'Buat password baru');
+                }
+            } catch(e) {
+                // Server mungkin belum siap, lanjutkan saja
+            }
+        }
+
+        async function handleSubmit(e) {
+            e.preventDefault();
+            const pw = document.getElementById('password').value;
+            const btn = document.getElementById('btnSubmit');
+            const btnText = document.getElementById('btnText');
+            const btnIcon = document.getElementById('btnIcon');
+            const spinner = document.getElementById('spinner');
+
+            // Loading state
+            btn.disabled = true;
+            spinner.style.display = 'block';
+            btnIcon.style.display = 'none';
+            btnText.textContent = 'Memproses...';
+            hideAlert();
+
+            try {
+                const res = await fetch('/login-admin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: pw })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    showAlert('Login berhasil! Mengalihkan...', 'success', 'check_circle');
+                    btnText.textContent = 'Berhasil!';
+                    btnIcon.style.display = 'block';
+                    btnIcon.textContent = 'check_circle';
+                    spinner.style.display = 'none';
+                    setTimeout(() => { window.location.href = '/admin'; }, 800);
+                } else {
+                    showAlert(data.message || 'Password salah. Coba lagi.', 'danger', 'error');
+                    resetBtn();
+                    document.getElementById('password').focus();
+                    document.getElementById('password').select();
+                }
+            } catch(err) {
+                showAlert('Tidak dapat terhubung ke server.', 'danger', 'wifi_off');
+                resetBtn();
+            }
+        }
+
+        function resetBtn() {
+            const btn = document.getElementById('btnSubmit');
+            const btnText = document.getElementById('btnText');
+            const btnIcon = document.getElementById('btnIcon');
+            const spinner = document.getElementById('spinner');
+            btn.disabled = false;
+            spinner.style.display = 'none';
+            btnIcon.style.display = 'block';
+            btnIcon.textContent = isFirstSetup ? 'key' : 'login';
+            btnText.textContent = isFirstSetup ? 'Buat Password' : 'Masuk';
+        }
+
+        function showAlert(msg, type, icon) {
+            const box = document.getElementById('alertBox');
+            const alertMsg = document.getElementById('alertMsg');
+            const alertIcon = document.getElementById('alertIcon');
+            box.className = 'alert-box alert-' + type;
+            box.style.display = 'flex';
+            alertMsg.textContent = msg;
+            alertIcon.textContent = icon || (type === 'danger' ? 'error' : 'check_circle');
+        }
+
+        function hideAlert() {
+            document.getElementById('alertBox').style.display = 'none';
+        }
+
+        function togglePassword() {
+            const input = document.getElementById('password');
+            const icon = document.getElementById('toggleIcon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.textContent = 'visibility_off';
+            } else {
+                input.type = 'password';
+                icon.textContent = 'visibility';
+            }
+        }
+
+        // Enter key handler sudah di form onsubmit
+        // Jalankan init
+        init();
+    </script>
+</body>
+</html>
